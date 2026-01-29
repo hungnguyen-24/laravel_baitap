@@ -45,3 +45,37 @@ Route::get('/test-link', function() {
 Route::fallback(function () {
     return view('error.404');
 });
+
+// Route hiển thị form login
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// Route xử lý khi bấm nút Login (tạm thời trả về thông báo)
+Route::post('/login', function () {
+    return "Xác nhận: Bạn đang gửi dữ liệu đăng nhập!";
+});
+
+use App\Http\Controllers\AuthController;
+
+// Commit 1: Auth
+Route::get('/signin', [AuthController::class, 'SignIn']);
+Route::post('/check-signin', [AuthController::class, 'CheckSignIn']);
+
+// Commit 2: Session & Middleware
+Route::get('/check-age', function() { 
+    return view('checkage'); 
+});
+
+Route::post('/save-age', function(Illuminate\Http\Request $request) {
+    // Lưu tuổi vào session
+    session(['user_age' => $request->age]);
+    
+    // SỬA DÒNG NÀY: Chuyển hướng sang route được bảo vệ bởi Middleware
+    return redirect('/secret-content');
+});
+
+// Route này dùng để test Middleware
+Route::get('/secret-content', function() {
+    return "Bạn được phép truy cập!";
+})->middleware(\App\Http\Middleware\CheckAge::class);
